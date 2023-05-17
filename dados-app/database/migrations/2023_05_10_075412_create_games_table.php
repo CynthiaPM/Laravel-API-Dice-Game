@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('games', function (Blueprint $table) {
             $table->id();
-            $table->integer('Dice1');
-            $table->integer('Dice2');
-            $table->enum('Status',['Win','Lose']);
+            $table->unsignedBigInteger('user_id');
+            $table->integer('dice1');
+            $table->integer('dice2');
+            $table->boolean('win');
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 

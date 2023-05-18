@@ -45,4 +45,19 @@ class User extends Authenticatable
     public function games(){
         return $this->hasMany(Game::class);
     }
+
+    public function calculateSuccessRate()
+{
+    $totalGames = $this->games()->count();
+    $totalWins = $this->games()->where('status', true)->count();
+
+    if ($totalGames == 0) {
+        return 0;
+    }
+
+    $successRate = ($totalWins / $totalGames) * 100;
+
+    return $successRate;
+}
+
 }

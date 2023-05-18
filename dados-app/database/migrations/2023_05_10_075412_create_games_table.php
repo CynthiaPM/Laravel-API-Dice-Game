@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->integer('dice1');
             $table->integer('dice2');
-            $table->boolean('win');
+            $table->boolean('status');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');

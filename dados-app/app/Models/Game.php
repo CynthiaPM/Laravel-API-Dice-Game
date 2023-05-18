@@ -13,7 +13,7 @@ class Game extends Model
         'user_id',
         'dice1',
         'dice2',
-        'win',
+        'status',
     ];
 
     public function games(){

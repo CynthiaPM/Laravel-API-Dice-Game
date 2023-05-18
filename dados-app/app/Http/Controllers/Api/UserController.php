@@ -10,11 +10,11 @@ use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display all the players and succeess rating
      */
     public function index()
     {
-        //
+        return response()->json([User::select('name','success_rate')->get()], 200);
     }
 
     /**
@@ -69,6 +69,42 @@ class UserController extends Controller
         return response()->json(['token'=>$token],200);
 
     }
+
+    //average fo the success rate of all users
+
+        public function averageSuccessRate()
+    {
+        $average = User::avg('success_rate');
+
+        return $average;
+    }
+
+    //found the player with worse sucess ranking
+
+    public function worseSuccessRate(){
+
+        $worsePlayer = User::orderBy('success_rate','asc')
+        ->select('name','success_rate')
+        ->first();
+
+        return $worsePlayer;
+
+    }
+
+    //found the player with best success ranking
+
+    public function bestSuccessRate(){
+
+        $bestPlayer = User::select('name','success_rate')
+        ->orderByDesc('success_rate')
+        ->take(1)
+        ->get();
+
+        return $bestPlayer;
+
+    }
+
+
     
     /**
      * user logout

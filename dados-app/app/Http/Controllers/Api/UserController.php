@@ -62,7 +62,7 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password)
-        ]);
+        ])->assignRole('player');
 
         $token = $user->createToken('Personal Acces Token')-> accessToken;
 

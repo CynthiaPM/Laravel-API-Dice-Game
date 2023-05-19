@@ -14,10 +14,31 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-       $role1 = Role::create(['name'=>'Admin']);
-       $role2 = Role::create(['name'=>'Player']);
+       $admin = Role::create(['name'=>'admin']);
+       $player = Role::create(['name'=>'player']);
 
-       Permission::create(['name'=>])
+       Permission::create(['name'=>'user.login'])->syncRoles([$admin,$player]);
+       Permission::create(['name'=>'user.register'])->syncRoles([$admin,$player]);
+       Permission::create(['name'=>'user.logout'])->syncRoles([$admin,$player]);
+
+       Permission::create(['name'=>'user.update'])->assignRole($player);
+       Permission::create(['name'=>'game.throwDice'])->assignRole($player);
+       Permission::create(['name'=>'game.destroy'])->assignRole($player);
+       Permission::create(['name'=>'game.index'])->assignRole($player);
+
+       Permission::create(['name'=>'ranking.index'])->assignRole($admin);
+       Permission::create(['name'=>'ranking.averageSuccessRate'])->assignRole($admin);
+       Permission::create(['name'=>'ranking.worseSuccessRate'])->assignRole($admin);
+       Permission::create(['name'=>'ranking.bestSuccessRate'])->assignRole($admin);
+
+
+
+
+
+
+
+
+
 
     }
 }

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\GameController;
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,40 +23,40 @@ use App\Http\Controllers\Api\GameController;
 
 // Users routes
 
-Route::post('players',[UserController::class,'register']);
-Route::post('login',[UserController::class,'login']);
+Route::post('players',[UserController::class,'register'])->name('user.register');
+Route::post('login',[UserController::class,'login'])->name('user.login');
 
 
 Route::middleware('auth:api')->group(function(){
 
 //logout
-Route::post('logout',[UserController::class,'logout']);
+Route::post('logout',[UserController::class,'logout'])->name('user.logout')->middleware('role:admin,player');
 
 //update player name
-Route::put('players/{id}',[UserController::class,'update']);
+Route::put('players/{id}',[UserController::class,'update'])->name('user.update')->middleware('role:player');
 
 //throw the dices
-Route::post('players/{id}/games',[GameController::class, 'throwDice']);
+Route::post('players/{id}/games',[GameController::class, 'throwDice'])->name('game.throwDice')->middleware('role:player');
 
 //delete all the games of the player
-Route::delete('players/{id}/games',[GameController::class,'destroy']);
+Route::delete('players/{id}/games',[GameController::class,'destroy'])->name('game.destroy')->middleware('role:player');
 
 //show all the games of the player
-Route::get('players/{id}/games',[GameController::class,'index']);
+Route::get('players/{id}/games',[GameController::class,'index'])->name('game.index')->middleware('role:player');
 
 //show all the players and the success rating of every one.
-Route::get('players',[UserController::class,'index']);
+Route::get('players',[UserController::class,'index'])->name('ranking.index')->middleware('role:admin');
 
 //show the average success ranking of all users
-Route::get('players/ranking',[UserController::class,'averageSuccessRate']);
+Route::get('players/ranking',[UserController::class,'averageSuccessRate'])->name('ranking.averageSuccessRate')->middleware('role:admin');
 
 //Show the worse player
 
-Route::get('/players/ranking/loser',[UserController::class,'worseSuccessRate']);
+Route::get('/players/ranking/loser',[UserController::class,'worseSuccessRate'])->name('ranking.worseSuccessRate')->middleware('role:admin');
 
 //Show the best player 
 
-Route::get('/players/ranking/winner',[UserController::class,'bestSuccessRate']);
+Route::get('/players/ranking/winner',[UserController::class,'bestSuccessRate'])->name('ranking.bestSuccessRate')->middleware('role:admin');
 
 
 

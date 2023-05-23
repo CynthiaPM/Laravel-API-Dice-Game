@@ -29,7 +29,7 @@ class GameFactory extends Factory
             'user_id' => $existingUserIds,
             'dice1' => $dice1,
             'dice2' => $dice2,
-            'result' => $result
+            'status' => $result
 
         ];
     }

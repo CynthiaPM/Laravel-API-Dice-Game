@@ -6,13 +6,29 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Game;
+use Illuminate\Support\Facades\Auth;
 
 class GameController extends Controller
 {
     
     public function index($id){
 
-        return response()->json(User::find($id)->games,200);
+        //get the id of the authenticated user
+
+        $authenticatedUserId = Auth::id();        
+
+        if($authenticatedUserId == $id){
+
+            $user = User::find($id);
+
+            return response()->json([
+                'games'=>$user->games,
+                'success_rate'=>$user->success_rate],200);
+
+        }else {
+
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }       
 
     }
 
@@ -41,7 +57,11 @@ class GameController extends Controller
 
     public function throwDice($id){
 
-        $game = $this->createGame($this->diceLogic(), User::find($id));
+        $authenticatedUserId = Auth::id();        
+
+        if($authenticatedUserId == $id){
+
+            $game = $this->createGame($this->diceLogic(), User::find($id));
 
         return response()->json([
             'dice1' => $game-> dice1,
@@ -49,17 +69,31 @@ class GameController extends Controller
             'status' => $game-> status ? 'win' : 'lose'
         ],200);
 
+        }else {
+
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        
+
     }
 
     public function destroy($id){
 
-        $user = User::find($id);
+        $authenticatedUserId = Auth::id();        
 
-        $user->games()->delete();
+        if($authenticatedUserId == $id){
 
-        return response()->json(['message'=>'Successfully delete'], 200);
+            $user = User::find($id);
 
+            $user->games()->delete();
 
+            return response()->json(['message'=>'Successfully delete'], 200);
+
+        }else {
+
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
     }
 
 

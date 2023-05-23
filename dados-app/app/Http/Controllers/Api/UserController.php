@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+
 
 class UserController extends Controller
 {
@@ -14,6 +16,7 @@ class UserController extends Controller
      */
     public function index()
     {
+                
         return response()->json([User::select('name','success_rate')->get()], 200);
     }
 
@@ -39,12 +42,9 @@ class UserController extends Controller
             //  (['user' => Auth::user(),'access_Token' =>$accesToken]);
         }else {
             return response()->json(['error' => 'Unauthorized'], 401);
-        }
+        }      
 
         
-
-        
-        return response(['message'=>'no']);
     }
 
     /**
@@ -52,59 +52,22 @@ class UserController extends Controller
      */
 
     public function register(Request $request){
-        $this->validate($request,[
-            'name' => 'required|min:4',
+        
+        $this->validate($request,[            
             'email' => 'required|email',
             'password' => 'required|min:8'
         ]);
-
-        $user = User::create([
-            'name' => $request->name,
+            $user = User::create([
+            'name' => $request->filled('name') ? $request->name : 'anónimo',
             'email' => $request->email,
-            'password' => bcrypt($request->password)
+            'password' => bcrypt($request->password),
         ])->assignRole('player');
 
-        $token = $user->createToken('Personal Acces Token')-> accessToken;
-
-        return response()->json(['token'=>$token],200);
-
-    }
-
-    //average fo the success rate of all users
-
-        public function averageSuccessRate()
-    {
-        $average = User::avg('success_rate');
-
-        return $average;
-    }
-
-    //found the player with worse sucess ranking
-
-    public function worseSuccessRate(){
-
-        $worsePlayer = User::orderBy('success_rate','asc')
-        ->select('name','success_rate')
-        ->first();
-
-        return $worsePlayer;
-
-    }
-
-    //found the player with best success ranking
-
-    public function bestSuccessRate(){
-
-        $bestPlayer = User::select('name','success_rate')
-        ->orderByDesc('success_rate')
-        ->take(1)
-        ->get();
-
-        return $bestPlayer;
-
-    }
-
-
+        $token = $user->createToken('Personal Access Token')-> accessToken;  
+           
+        return response()->json(['token'=>$token],201);
+        
+    }    
     
     /**
      * user logout
@@ -121,27 +84,64 @@ class UserController extends Controller
 
     }
 
-    // public function findId($id){
-
-    //     return User::findOrFail($id);
-
-    // }
-   
-
     /**
      * Update the name of the player
      */
     public function update(Request $request, $id)
     {
-        $user= User::find($id);
+        $authenticatedUserId = Auth::id();        
 
-        $user-> name = $request->input('name');
+        if($authenticatedUserId == $id){
 
-        $user-> save();
+            $user = User::find($id);
+
+            $user-> name = $request->input('name');
+
+            $user-> save();
+
+            return response()->json(['message'=> 'Successfully edited'], 200);
+
+        }else {
+
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    }
+
+    //MAKING THE RANKING OF THE PLAYERS
+
+    //average fo the success rate of all users
+
+    public function averageSuccessRate()
+    {
+        $average = User::avg('success_rate');
 
         return response()->json([
-            'message'=> 'Successfully edited'], 200);
+            'success_rate'=> $average
+        ]);
+    }
 
+    //found the player with worse sucess ranking
+
+    public function worseSuccessRate(){
+
+        $worsePlayer = User::orderBy('success_rate','asc')->first();
+
+        return response()->json([
+            'player'=>$worsePlayer->name,
+            'success_rate'=>$worsePlayer->success_rate],200);
+
+    }
+
+    //found the player with best success ranking
+
+    public function bestSuccessRate(){
+
+        $bestPlayer = User::orderByDesc('success_rate')->first();
+
+        return response()->json([
+            'player' => $bestPlayer->name,
+            'success_rate' => $bestPlayer->success_rate
+        ], 200);
 
     }
 

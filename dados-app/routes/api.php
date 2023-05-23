@@ -33,7 +33,7 @@ Route::middleware('auth:api')->group(function(){
 Route::post('logout',[UserController::class,'logout'])->name('user.logout')->middleware('role:admin,player');
 
 //update player name
-Route::put('players/{id}',[UserController::class,'update'])->name('user.update')->middleware('role:player');
+Route::patch('players/{id}',[UserController::class,'update'])->name('user.update')->middleware('role:player');
 
 //throw the dices
 Route::post('players/{id}/games',[GameController::class, 'throwDice'])->name('game.throwDice')->middleware('role:player');
@@ -41,7 +41,7 @@ Route::post('players/{id}/games',[GameController::class, 'throwDice'])->name('ga
 //delete all the games of the player
 Route::delete('players/{id}/games',[GameController::class,'destroy'])->name('game.destroy')->middleware('role:player');
 
-//show all the games of the player
+//show all the games of the player to the player and the ranking
 Route::get('players/{id}/games',[GameController::class,'index'])->name('game.index')->middleware('role:player');
 
 //show all the players and the success rating of every one.

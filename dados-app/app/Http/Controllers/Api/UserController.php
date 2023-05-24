@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 
 class UserController extends Controller
@@ -16,8 +17,14 @@ class UserController extends Controller
      */
     public function index()
     {
-                
-        return response()->json([User::select('name','success_rate')->get()], 200);
+        if (auth()->user()->hasRole('admin')) {
+
+            return response()->json([User::select('name','success_rate')->orderByDesc('success_rate')->get()], 200);
+            
+        }
+            return response()->json(['error' => 'Unauthorized'], 401);
+
+        
     }
 
     /**
@@ -36,9 +43,10 @@ class UserController extends Controller
         ];
 
         if(Auth::attempt($data)){
-            
+
+            $user= Auth::user();            
             $Token = Auth::user()->createToken('Personal Access Token')->accessToken;
-            return response()->json(['token' => $Token],200);
+            return response()->json(['name'=>$user->name,'token' => $Token],200);
             //  (['user' => Auth::user(),'access_Token' =>$accesToken]);
         }else {
             return response()->json(['error' => 'Unauthorized'], 401);
@@ -53,12 +61,26 @@ class UserController extends Controller
 
     public function register(Request $request){
         
-        $this->validate($request,[            
+        $this->validate($request,[    
+            'name',        
             'email' => 'required|email',
             'password' => 'required|min:8'
         ]);
+
+        $existingUser = User::where('email', $request->email)->first();
+        $name = $request->filled('name') ? $request->name : 'anónimo';
+        $existingUserName = User::where('name', $request->name)->first();
+
+        if($existingUser != null){
+
+            return response()->json(['message' => 'This email is already registered'], 400);
+        }else if($existingUserName != null){
+
+            return response()->json(['message' => 'This username is already taken'], 400);
+
+        }
             $user = User::create([
-            'name' => $request->filled('name') ? $request->name : 'anónimo',
+            'name' => $name ,
             'email' => $request->email,
             'password' => bcrypt($request->password),
         ])->assignRole('player');
@@ -91,8 +113,14 @@ class UserController extends Controller
     {
         $authenticatedUserId = Auth::id();        
 
-        if($authenticatedUserId == $id){
+        if($authenticatedUserId != $id){
 
+            return response()->json(['error' => 'you are not authenticated'], 401);
+
+        }else if(!isset($id)){
+
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
             $user = User::find($id);
 
             $user-> name = $request->input('name');
@@ -100,11 +128,6 @@ class UserController extends Controller
             $user-> save();
 
             return response()->json(['message'=> 'Successfully edited'], 200);
-
-        }else {
-
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
     }
 
     //MAKING THE RANKING OF THE PLAYERS

@@ -86,7 +86,10 @@ class GameController extends Controller
 
             $user = User::find($id);
 
-            $user->games()->delete();
+            $user->games()->delete();            
+
+            $user->success_rate= null;
+            $user->save();
 
             return response()->json(['message'=>'Successfully delete'], 200);
 

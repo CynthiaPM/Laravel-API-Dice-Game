@@ -35,7 +35,7 @@ class userTest extends TestCase
         ])->assertStatus(201);
     }
 
-    public function test_cant_register(){
+    public function test_cant_register_for_incorrect_information(){
 
         //the form is working
 
@@ -50,6 +50,24 @@ class userTest extends TestCase
         ]);
 
         $badRegister->assertStatus(422);
+
+    }
+
+    public function test_cant_register_for_existing_email_on_database(){
+
+        //the form is working
+
+        // $load = $this->get(route('user.register'));
+        // $load->assertStatus(200);
+
+        //wrong register test
+
+        $badRegister = $this->postJson(route('user.register'),[
+            "email" => "cynthia@gmail.com",
+            "password" => "12345678"
+        ]);
+
+        $badRegister->assertStatus(400);
 
     }
 
@@ -68,6 +86,7 @@ class userTest extends TestCase
         ]);
 
         $successfullLogin->assertJsonStructure([
+            'name',
             'token',
         ])->assertStatus(200);
         // $successfullLogin ->assertJsonStructure(['token']);                
@@ -97,7 +116,7 @@ class userTest extends TestCase
 
         $newName= 'nameChangeVictory';
 
-        $this->patchJson(route('user.update',$user->id),[
+        $this->putJson(route('user.update',$user->id),[
             'name' => $newName
         ])->assertStatus(200)->assertJsonStructure(['message']);
     }
@@ -112,7 +131,7 @@ class userTest extends TestCase
 
         $newName= 'nameChangeVictory';
 
-        $this->patchJson(route('user.update',$user->id-1),[
+        $this->putJson(route('user.update',$user->id-1),[
             'name' => $newName
         ])->assertStatus(401)->assertJsonStructure([
             'error',

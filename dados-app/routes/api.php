@@ -33,7 +33,7 @@ Route::middleware('auth:api')->group(function(){
 Route::post('logout',[UserController::class,'logout'])->name('user.logout')->middleware('role:admin,player');
 
 //update player name
-Route::patch('players/{id}',[UserController::class,'update'])->name('user.update')->middleware('role:player');
+Route::put('players/{id}',[UserController::class,'update'])->name('user.update')->middleware('role:player');
 
 //throw the dices
 Route::post('players/{id}/games',[GameController::class, 'throwDice'])->name('game.throwDice')->middleware('role:player');

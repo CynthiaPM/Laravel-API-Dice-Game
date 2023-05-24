@@ -20,8 +20,8 @@ class GameFactory extends Factory
     {
 
         $existingUserIds = User::all()->random()->id;
-        $dice1 = fake()->numberBetween(1-6);
-        $dice2 = fake()->numberBetween(1-6);
+        $dice1 = fake()->numberBetween(1,6);
+        $dice2 = fake()->numberBetween(1,6);
         $result = $dice1 + $dice2 === 7;
 
 
